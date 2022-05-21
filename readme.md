@@ -1,0 +1,2 @@
+- [x] rabbitmq实战指南
+- [ ] kafka入门与实践
