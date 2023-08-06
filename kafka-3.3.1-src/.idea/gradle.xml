@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="GradleMigrationSettings" migrationVersion="1" />
+  <component name="GradleSettings">
+    <option name="linkedExternalProjectsSettings">
+      <GradleProjectSettings>
+        <option name="distributionType" value="DEFAULT_WRAPPED" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="gradleHome" value="/usr/local/Cellar/gradle/7.4.2/libexec" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/clients" />
+            <option value="$PROJECT_DIR$/connect" />
+            <option value="$PROJECT_DIR$/connect/api" />
+            <option value="$PROJECT_DIR$/connect/basic-auth-extension" />
+            <option value="$PROJECT_DIR$/connect/file" />
+            <option value="$PROJECT_DIR$/connect/json" />
+            <option value="$PROJECT_DIR$/connect/mirror" />
+            <option value="$PROJECT_DIR$/connect/mirror-client" />
+            <option value="$PROJECT_DIR$/connect/runtime" />
+            <option value="$PROJECT_DIR$/connect/transforms" />
+            <option value="$PROJECT_DIR$/core" />
+            <option value="$PROJECT_DIR$/examples" />
+            <option value="$PROJECT_DIR$/generator" />
+            <option value="$PROJECT_DIR$/jmh-benchmarks" />
+            <option value="$PROJECT_DIR$/log4j-appender" />
+            <option value="$PROJECT_DIR$/metadata" />
+            <option value="$PROJECT_DIR$/raft" />
+            <option value="$PROJECT_DIR$/server-common" />
+            <option value="$PROJECT_DIR$/shell" />
+            <option value="$PROJECT_DIR$/storage" />
+            <option value="$PROJECT_DIR$/storage/api" />
+            <option value="$PROJECT_DIR$/streams" />
+            <option value="$PROJECT_DIR$/streams/examples" />
+            <option value="$PROJECT_DIR$/streams/streams-scala" />
+            <option value="$PROJECT_DIR$/streams/test-utils" />
+            <option value="$PROJECT_DIR$/streams/upgrade-system-tests-0100" />
+            <option value="$PROJECT_DIR$/streams/upgrade-system-tests-0101" />
+            <option value="$PROJECT_DIR$/streams/upgrade-system-tests-0102" />
+            <option value="$PROJECT_DIR$/streams/upgrade-system-tests-0110" />
+            <option value="$PROJECT_DIR$/streams/upgrade-system-tests-10" />
+            <option value="$PROJECT_DIR$/streams/upgrade-system-tests-11" />
+            <option value="$PROJECT_DIR$/streams/upgrade-system-tests-20" />
+            <option value="$PROJECT_DIR$/streams/upgrade-system-tests-21" />
+            <option value="$PROJECT_DIR$/streams/upgrade-system-tests-22" />
+            <option value="$PROJECT_DIR$/streams/upgrade-system-tests-23" />
+            <option value="$PROJECT_DIR$/streams/upgrade-system-tests-24" />
+            <option value="$PROJECT_DIR$/streams/upgrade-system-tests-25" />
+            <option value="$PROJECT_DIR$/streams/upgrade-system-tests-26" />
+            <option value="$PROJECT_DIR$/streams/upgrade-system-tests-27" />
+            <option value="$PROJECT_DIR$/streams/upgrade-system-tests-28" />
+            <option value="$PROJECT_DIR$/streams/upgrade-system-tests-30" />
+            <option value="$PROJECT_DIR$/streams/upgrade-system-tests-31" />
+            <option value="$PROJECT_DIR$/streams/upgrade-system-tests-32" />
+            <option value="$PROJECT_DIR$/tools" />
+            <option value="$PROJECT_DIR$/trogdor" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+    </option>
+  </component>
+</project>
