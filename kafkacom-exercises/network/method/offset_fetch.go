@@ -7,12 +7,16 @@ import (
 	"kafkacom-exercises/network/message/response"
 )
 
-// InitProducer 初始化生产者
-func InitProducer(broker *meta.Broker) (*response.InitProducerIDResponse, error) {
+// OffsetFetch 获取偏移量
+func OffsetFetch(broker *meta.Broker, groupID string,
+	partitions map[string][]int32) (OffsetBlocks, error) {
 	r := &network.Request{
 		CorrelationID: broker.CorrelationID,
 		ClientID:      broker.ClientID,
-		ProtocolBody:  &request.InitProducerIDRequest{},
+		ProtocolBody: &request.OffsetFetchRequest{
+			ConsumerGroup: groupID,
+			Partitions:    partitions,
+		},
 	}
 
 	broker.Lock()
@@ -21,7 +25,7 @@ func InitProducer(broker *meta.Broker) (*response.InitProducerIDResponse, error)
 		return nil, err
 	}
 
-	responseBody := response.InitProducerIDResponse{}
+	responseBody := response.OffsetFetchResponse{}
 	n := &network.Response{
 		Request:      r,
 		ProtocolBody: &responseBody,
@@ -32,5 +36,16 @@ func InitProducer(broker *meta.Broker) (*response.InitProducerIDResponse, error)
 	// 需要同步等待结果
 	<-n.SyncSign
 	close(n.SyncSign)
-	return &responseBody, nil
+	result := make(OffsetBlocks, 0)
+	for t, m := range responseBody.Blocks {
+		for p, b := range m {
+			result = append(result, &OffsetBlock{
+				Topic:     t,
+				Partition: p,
+				Offset:    b.Offset,
+				Metadata:  b.Metadata,
+			})
+		}
+	}
+	return result, nil
 }

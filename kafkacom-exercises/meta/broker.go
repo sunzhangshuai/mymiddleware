@@ -1,6 +1,7 @@
 package meta
 
 import (
+	"encoding/json"
 	"fmt"
 	"kafkacom-exercises/network"
 	"kafkacom-exercises/util/coder/decoder"
@@ -36,6 +37,9 @@ func (b *Broker) Decode(pd decoder.PacketDecoder) (err error) {
 	if err != nil {
 		return err
 	}
+	if host == "bogon" {
+		host = "127.0.0.1"
+	}
 
 	port, err := pd.GetInt32()
 	if err != nil {
@@ -43,13 +47,11 @@ func (b *Broker) Decode(pd decoder.PacketDecoder) (err error) {
 	}
 
 	// 机架id，可能会有
-	b.Rack, err = pd.GetNullableString()
-	if err != nil {
-		return err
-	}
+	// 忽略rack的报错，因为获取协调者时没有机架位ID
+	b.Rack, _ = pd.GetNullableString()
 
 	b.Addr = net.JoinHostPort(host, fmt.Sprint(port))
-	if _, _, err := net.SplitHostPort(b.Addr); err != nil {
+	if _, _, err = net.SplitHostPort(b.Addr); err != nil {
 		return err
 	}
 	return nil
@@ -94,8 +96,9 @@ func (b *Broker) Open() {
 			b.CorrelationID++
 			// 先解析返回值
 			if err := response.Decode(b.Conn); err != nil {
-				fmt.Printf("数据解析出错了: %+v\n", err)
-				continue
+				b.Conn, _ = net.Dial("tcp", b.Addr)
+				s, _ := json.Marshal(response.Request.ProtocolBody)
+				fmt.Printf("数据解析出错了: [%T]%+v，请求：%s\n", response.ProtocolBody, err, s)
 			}
 
 			// 如果同步，就通知同步等待的信道，由同步位置进行处理

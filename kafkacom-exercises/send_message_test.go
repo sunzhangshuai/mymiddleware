@@ -1,42 +1,50 @@
 package kafkacom_exercises
 
 import (
+	"fmt"
+	"kafkacom-exercises/consumer"
 	"kafkacom-exercises/meta"
 	"kafkacom-exercises/producer"
 	"strconv"
+	"sync"
 	"testing"
 	"time"
 )
 
-func TestName(t *testing.T) {
-	p, _ := producer.NewProducer("127.0.0.1:9092")
+//var topics = []string{"test_3"}
 
-	// 同步消息发送
-	for i := 0; i < 10; i++ {
-		t.Log("第", i+1, "条同步消息：开始发送")
-		t.Log(p.SendMessage("test", "老婆你好，第"+strconv.Itoa(i+1)+"句", nil))
-		t.Log("第", i+1, "条同步消息：结束发送")
-	}
+var topics = []string{"topic_23", "topic_33"}
+var addr = "127.0.0.1:9093"
+var group = "test_group"
 
-	// 异步发送消息
-	for i := 10; i < 20; i++ {
-		t.Log("第", i+1, "条异步消息：开始发送")
-		index := i
-		p.SendAsyncMessage("test", "老婆你好，第"+strconv.Itoa(i+1)+"句", nil, func(response *meta.MessageResponse) {
-			t.Log(response.Partition, response.Offset, response.Err)
-			t.Log("第", index+1, "条异步消息：结束发送")
-		})
+func TestProducer(t *testing.T) {
+	p, _ := producer.NewProducer(addr)
+	for i := 0; ; i++ {
+		time.Sleep(10 * time.Millisecond)
+		for _, topic := range topics {
+			message := "老婆你好，第" + strconv.Itoa(i+1) + "句"
+			go func(topic string) {
+				p.SendAsyncMessage(topic, message, nil, func(response *meta.MessageResponse) {
+					t.Log(fmt.Sprintf("[%s][%d][%d]", topic, response.Partition, response.Err), message)
+				})
+			}(topic)
+		}
 	}
-	time.Sleep(3 * time.Second)
+}
 
-	for i := 20; i < 50; i++ {
-		time.Sleep(300 * time.Millisecond)
-		t.Log("第", i+1, "条异步消息：开始发送")
-		index := i
-		p.SendAsyncMessage("test", "老婆你好，第"+strconv.Itoa(i+1)+"句", nil, func(response *meta.MessageResponse) {
-			t.Log(response.Partition, response.Offset, response.Err)
-			t.Log("第", index+1, "条异步消息：结束发送")
-		})
+func TestConsumer(t *testing.T) {
+	g, _ := consumer.NewConsumerGroup(addr, group)
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	for i := 0; i < 25; i++ {
+		go func(i int) {
+			m := g.NewMember(fmt.Sprintf("consumer:%d", i), topics)
+			m.Consumer(func(message *meta.Message) {
+				m.Log("消费成功：[%s][%d][%d][%s]", message.Topic, message.PartitionNum, message.Offset, message.Value)
+			})
+		}(i)
+		time.Sleep(10 * time.Second)
 	}
-	time.Sleep(10 * time.Second)
+	wg.Wait()
+
 }

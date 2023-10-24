@@ -3,6 +3,7 @@ package producer
 import (
 	"hash/fnv"
 	"sort"
+	"sync"
 )
 
 // Partition 分区计算器
@@ -10,6 +11,7 @@ type Partition struct {
 	Balance    map[string]int
 	Partitions map[string][]int32
 	Producer   *Instance
+	sync.Mutex
 }
 
 // NewPartition 计算分页器
@@ -33,6 +35,9 @@ func (p *Partition) Partition(topicName string, key *string) int32 {
 }
 
 func (p *Partition) internalPartition(topicName string, key *string) int32 {
+	p.Lock()
+	defer p.Unlock()
+
 	partitions, ok := p.Partitions[topicName]
 	if !ok {
 		return -1

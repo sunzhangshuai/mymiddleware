@@ -3,7 +3,8 @@ package method
 import (
 	"kafkacom-exercises/meta"
 	"kafkacom-exercises/network"
-	message "kafkacom-exercises/network/message"
+	request2 "kafkacom-exercises/network/message/request"
+	message "kafkacom-exercises/network/message/response"
 )
 
 func GetMetaData(broker *meta.Broker, f func(response *network.Response) error) error {
@@ -12,7 +13,7 @@ func GetMetaData(broker *meta.Broker, f func(response *network.Response) error) 
 		CorrelationID: broker.CorrelationID,
 		ClientID:      broker.ClientID,
 		Callback:      f,
-		ProtocolBody:  &message.MetadataRequest{},
+		ProtocolBody:  &request2.MetadataRequest{},
 	}
 
 	broker.Lock()
@@ -36,7 +37,7 @@ func GetMetaDataSync(broker *meta.Broker, f func(response *network.Response) err
 	request := &network.Request{
 		CorrelationID: broker.CorrelationID,
 		ClientID:      broker.ClientID,
-		ProtocolBody:  &message.MetadataRequest{},
+		ProtocolBody:  &request2.MetadataRequest{},
 	}
 
 	broker.Lock()

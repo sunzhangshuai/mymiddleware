@@ -3,19 +3,20 @@ package method
 import (
 	"kafkacom-exercises/meta"
 	"kafkacom-exercises/network"
-	"kafkacom-exercises/network/message"
+	"kafkacom-exercises/network/message/request"
+	"kafkacom-exercises/network/message/response"
 )
 
 // SendMessage 发送消息
 func SendMessage(broker *meta.Broker, data map[string]map[int32]*meta.RecordBatch,
 	callback func(response *network.Response) error) {
-	request := &network.Request{
+	r := &network.Request{
 		CorrelationID: broker.CorrelationID,
 		ClientID:      broker.ClientID,
-		ProtocolBody: &message.ProduceRequest{
+		ProtocolBody: &request.ProduceRequest{
 			TransactionalID: nil,
-			RequiredAcks:    message.WaitForAll,
-			Timeout:         0,
+			RequiredAcks:    request.WaitForLocal,
+			Timeout:         3000,
 			Records:         data,
 		},
 		Callback: callback,
@@ -23,15 +24,15 @@ func SendMessage(broker *meta.Broker, data map[string]map[int32]*meta.RecordBatc
 
 	broker.Lock()
 	defer broker.Unlock()
-	if err := request.Send(broker.Conn); err != nil {
+	if err := r.Send(broker.Conn); err != nil {
 		return
 	}
 
-	responseBody := message.ProduceResponse{}
-	response := &network.Response{
-		Request:      request,
+	responseBody := response.ProduceResponse{}
+	n := &network.Response{
+		Request:      r,
 		ProtocolBody: &responseBody,
 	}
-	broker.Responses <- response
+	broker.Responses <- n
 	return
 }

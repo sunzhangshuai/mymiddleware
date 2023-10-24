@@ -4,7 +4,6 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"github.com/rcrowley/go-metrics"
 	"kafkacom-exercises/util"
 	"math"
 )
@@ -202,10 +201,5 @@ func (pe *PrepEncoder) Pop() error {
 		pe.Length += dpe.AdjustLength(pe.Length)
 	}
 
-	return nil
-}
-
-// MetricRegistry we do not record metrics during the prep encoder pass
-func (pe *PrepEncoder) MetricRegistry() metrics.Registry {
 	return nil
 }

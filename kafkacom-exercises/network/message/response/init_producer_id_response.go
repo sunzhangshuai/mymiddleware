@@ -1,4 +1,4 @@
-package message
+package response
 
 import (
 	"kafkacom-exercises/util"

@@ -1,7 +1,5 @@
 package encoder
 
-import "github.com/rcrowley/go-metrics"
-
 // PushEncoder 是对CRC和长度等字段进行编码的接口，其中字段的值取决于数据包中其后的编码内容。
 // 用实际值位于数据包中的 PacketEncoder.Push() 启动它们，其中 实际值位于数据包中，然后在写入它们所依赖的所有字节时用 PacketEncoder.Pop() 启动。
 type PushEncoder interface {
@@ -67,7 +65,4 @@ type PacketEncoder interface {
 	// Stacks, see PushEncoder
 	Push(in PushEncoder)
 	Pop() error
-
-	// To record metrics when provided
-	MetricRegistry() metrics.Registry
 }

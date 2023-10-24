@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"kafkacom-exercises/meta"
 	"kafkacom-exercises/network"
-	"kafkacom-exercises/network/message"
+	response2 "kafkacom-exercises/network/message/response"
 	"kafkacom-exercises/network/method"
+	"math"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -62,12 +64,40 @@ func (c *Client) AppendObserver(key string, observer chan struct{}) {
 	c.Observers[key] = observer
 }
 
+// LeastLoadedBroker 返回挂起请求最少的broker
+func (c *Client) LeastLoadedBroker() *meta.Broker {
+	var result *meta.Broker
+	pendingRequests := math.MaxInt
+	for _, broker := range c.Brokers {
+		if pendingRequests > len(broker.Responses) {
+			pendingRequests = len(broker.Responses)
+			result = broker
+		}
+	}
+	return result
+}
+
+// Partitions 获取分区列表
+func (c *Client) Partitions(topic string) []int32 {
+	if _, ok := c.Metadata[topic]; !ok {
+		return nil
+	}
+	result := make([]int32, 0, len(c.Metadata[topic]))
+	for partNum := range c.Metadata[topic] {
+		result = append(result, partNum)
+	}
+	sort.Slice(result, func(i, j int) bool {
+		return result[i] < result[j]
+	})
+	return result
+}
+
 // updateConfig 更新配置
 func (c *Client) updateConfig(response *network.Response) error {
 	c.Lock()
 	defer c.Unlock()
 
-	body := response.ProtocolBody.(*message.MetadataResponse)
+	body := response.ProtocolBody.(*response2.MetadataResponse)
 	// 更新broker
 	c.updateBroker(body.Brokers)
 	c.updateMetadata(body.Topics)

@@ -18,6 +18,9 @@ type Message struct {
 	Topic        string
 	PartitionNum int32
 	Timestamp    time.Time
+	Offset       int64
+
+	Headers []*RecordHeader
 
 	Callback func(*MessageResponse)
 	// 解决同步问题

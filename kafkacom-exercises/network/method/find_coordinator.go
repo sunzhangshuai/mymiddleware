@@ -7,12 +7,14 @@ import (
 	"kafkacom-exercises/network/message/response"
 )
 
-// InitProducer 初始化生产者
-func InitProducer(broker *meta.Broker) (*response.InitProducerIDResponse, error) {
+// FindCoordinator 寻找协调者
+func FindCoordinator(broker *meta.Broker, groupID string) (*meta.Broker, error) {
 	r := &network.Request{
 		CorrelationID: broker.CorrelationID,
 		ClientID:      broker.ClientID,
-		ProtocolBody:  &request.InitProducerIDRequest{},
+		ProtocolBody: &request.FindCoordinatorRequest{
+			CoordinatorKey: groupID,
+		},
 	}
 
 	broker.Lock()
@@ -21,10 +23,10 @@ func InitProducer(broker *meta.Broker) (*response.InitProducerIDResponse, error)
 		return nil, err
 	}
 
-	responseBody := response.InitProducerIDResponse{}
+	responseBody := &response.FindCoordinatorResponse{}
 	n := &network.Response{
 		Request:      r,
-		ProtocolBody: &responseBody,
+		ProtocolBody: responseBody,
 		SyncSign:     make(chan struct{}),
 	}
 	broker.Responses <- n
@@ -32,5 +34,5 @@ func InitProducer(broker *meta.Broker) (*response.InitProducerIDResponse, error)
 	// 需要同步等待结果
 	<-n.SyncSign
 	close(n.SyncSign)
-	return &responseBody, nil
+	return responseBody.Coordinator, nil
 }

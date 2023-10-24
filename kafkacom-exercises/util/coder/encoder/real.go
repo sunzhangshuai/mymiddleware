@@ -3,15 +3,13 @@ package encoder
 import (
 	"encoding/binary"
 	"errors"
-	"github.com/rcrowley/go-metrics"
 	"math"
 )
 
 type RealEncoder struct {
-	Raw      []byte // 编码分配的内存块
-	off      int    // 已经编码的字节数
-	stack    []PushEncoder
-	registry metrics.Registry
+	Raw   []byte // 编码分配的内存块
+	off   int    // 已经编码的字节数
+	stack []PushEncoder
 }
 
 // primitives
@@ -209,9 +207,4 @@ func (re *RealEncoder) Pop() error {
 	in := re.stack[len(re.stack)-1]
 	re.stack = re.stack[:len(re.stack)-1]
 	return in.Run(re.off, re.Raw)
-}
-
-// we do record metrics during the real encoder pass
-func (re *RealEncoder) MetricRegistry() metrics.Registry {
-	return re.registry
 }

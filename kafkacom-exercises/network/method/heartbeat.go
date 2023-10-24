@@ -7,24 +7,28 @@ import (
 	"kafkacom-exercises/network/message/response"
 )
 
-// InitProducer 初始化生产者
-func InitProducer(broker *meta.Broker) (*response.InitProducerIDResponse, error) {
+// Heartbeat 心跳
+func Heartbeat(broker *meta.Broker, groupID string, memberID string, generationID int32) error {
 	r := &network.Request{
 		CorrelationID: broker.CorrelationID,
 		ClientID:      broker.ClientID,
-		ProtocolBody:  &request.InitProducerIDRequest{},
+		ProtocolBody: &request.HeartbeatRequest{
+			GroupID:      groupID,
+			GenerationID: generationID,
+			MemberID:     memberID,
+		},
 	}
 
 	broker.Lock()
 	defer broker.Unlock()
 	if err := r.Send(broker.Conn); err != nil {
-		return nil, err
+		return err
 	}
 
-	responseBody := response.InitProducerIDResponse{}
+	responseBody := &response.HeartbeatResponse{}
 	n := &network.Response{
 		Request:      r,
-		ProtocolBody: &responseBody,
+		ProtocolBody: responseBody,
 		SyncSign:     make(chan struct{}),
 	}
 	broker.Responses <- n
@@ -32,5 +36,5 @@ func InitProducer(broker *meta.Broker) (*response.InitProducerIDResponse, error)
 	// 需要同步等待结果
 	<-n.SyncSign
 	close(n.SyncSign)
-	return &responseBody, nil
+	return responseBody.Err
 }

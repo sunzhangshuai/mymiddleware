@@ -4,7 +4,7 @@ import (
 	"github.com/eapache/queue"
 	"kafkacom-exercises/meta"
 	"kafkacom-exercises/network"
-	"kafkacom-exercises/network/message"
+	"kafkacom-exercises/network/message/response"
 	"kafkacom-exercises/network/method"
 )
 
@@ -17,7 +17,7 @@ type NetworkInput struct {
 // Response 结果
 type Response struct {
 	brokerID int32
-	result   map[string]map[int32]*message.ProduceResponseBlock
+	result   map[string]map[int32]*response.ProduceResponseBlock
 }
 
 // Client 请求客户端
@@ -108,10 +108,10 @@ func (n *Network) handler() {
 				n.producer.GlobalLock.RLock()
 				defer n.producer.GlobalLock.RUnlock()
 				n.toClient(data)
-			case response := <-n.response:
+			case r := <-n.response:
 				n.producer.GlobalLock.RLock()
 				defer n.producer.GlobalLock.RUnlock()
-				n.receive(response)
+				n.receive(r)
 			}
 		}()
 
@@ -184,8 +184,8 @@ func (n *Network) receive(response *Response) {
 // sendMessage 发送消息
 func (n *Network) sendMessage(client *Client) {
 	method.SendMessage(client.broker, client.inFlightRequest.Peek().(*NetworkInput).Request,
-		func(response *network.Response) error {
-			r := response.ProtocolBody.(*message.ProduceResponse)
+		func(result *network.Response) error {
+			r := result.ProtocolBody.(*response.ProduceResponse)
 			n.response <- &Response{
 				brokerID: client.broker.ID,
 				result:   r.Blocks,
